@@ -1,3 +1,5 @@
 language: go
 before_script:
   - go vet ./...
+notifications:
+  email: false
