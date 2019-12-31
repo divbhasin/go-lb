@@ -2,4 +2,7 @@ language: go
 before_script:
   - go vet ./...
 notifications:
-  email: false
+  email:
+    recipients:
+      - divbest99@gmail.com
+    on_success: never
