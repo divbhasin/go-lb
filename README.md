@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/divbhasin/go-lb)](https://goreportcard.com/report/github.com/divbhasin/go-lb) [![Build Status](https://travis-ci.org/divbhasin/go-lb.svg?branch=master)](https://travis-ci.org/divbhasin/go-lb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/divbhasin/go-lb)](https://goreportcard.com/report/github.com/divbhasin/go-lb) [![Build Status](https://travis-ci.org/divbhasin/go-lb.svg?branch=master)](https://travis-ci.org/divbhasin/go-lb) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # go-lb: A basic load balancer implemented in Go
 
