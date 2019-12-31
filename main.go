@@ -1,10 +1,13 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -55,7 +58,9 @@ func (b *Backend) IsAlive() (alive bool) {
 	return
 }
 
-func (s *ServerPool) lb(w http.ResponseWriter, r *http.Request) {
+var s ServerPool
+
+func lb(w http.ResponseWriter, r *http.Request) {
 	peer := s.GetNextPeer()
 	if peer != nil {
 		peer.ReverseProxy.ServeHTTP(w, r)
@@ -65,10 +70,40 @@ func (s *ServerPool) lb(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	u, _ := url.Parse("http://localhost:8080")
-	rp := httputil.NewSingleHostReverseProxy(u)
-	_ = http.HandlerFunc(rp.ServeHTTP)
-	err := http.ListenAndServe(":4000", nil)
+	var serverList string
+	var port int
+
+	flag.StringVar(&serverList, "backends", "", "URLs to backends that need to be load balanced" +
+		", separated by commas")
+
+	flag.IntVar(&port, "port", 3030, "Port to serve load balancer on")
+	flag.Parse()
+
+	if len(serverList) == 0 {
+		log.Fatal("Please provide one or more backends to load manage")
+		return
+	}
+
+	tokens := strings.Split(serverList, ",")
+	for _, tok := range tokens {
+		serverUrl, err := url.Parse(tok)
+		if err != nil {
+			log.Fatal("URL is malformed!")
+			return
+		}
+
+		proxy := httputil.NewSingleHostReverseProxy(serverUrl)
+		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
+
+		}
+	}
+
+	server := http.Server{
+		Addr: fmt.Sprintf(":%d", port),
+		Handler: http.HandlerFunc(lb),
+	}
+
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatalf("An error occured %e", err)
 	}
