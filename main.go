@@ -14,6 +14,11 @@ import (
 	"time"
 )
 
+const (
+	Attempts int = iota
+	Retry
+)
+
 type Backend struct {
 	URL *url.URL
 	Alive bool
@@ -78,6 +83,28 @@ func lb(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Service not available", http.StatusServiceUnavailable)
 }
 
+func GetRetryFromContext(r *http.Request) int {
+	if retry, ok := r.Context().Value(Retry).(int); ok {
+		return retry
+	}
+	return 0
+}
+
+func GetAttemptsFromContext(r *http.Request) int {
+	if retry, ok := r.Context().Value(Attempts).(int); ok {
+		return retry
+	}
+	return 0
+}
+
+func (s *ServerPool) MarkBackendStatus(u *url.URL, status bool) {
+	for _, backend := range s.backends {
+		if backend.URL.Path == u.Path {
+			backend.SetAlive(false)
+		}
+	}
+}
+
 func main() {
 	var serverList string
 	var port int
@@ -116,7 +143,7 @@ func main() {
 			}
 
 			s.MarkBackendStatus(serverUrl, false)
-			attempts := GetAttemptsFromContext(request)
+			attempts := GetAttemptsFromContext(r)
 			log.Printf("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
 			ctx := context.WithValue(r.Context(), Attempts, attempts + 1)
 			lb(w, r.WithContext(ctx))
