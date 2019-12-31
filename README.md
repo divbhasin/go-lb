@@ -2,84 +2,48 @@
 
 # go-lb: A basic load balancer implemented in Go
 
-go-lb is a load balancer implemented with Go. It uses simple round robin to select backends to handle requests, and performs passive
-health checks to eliminate inactive backends. It uses http's Reverse Proxy to route requests and fetch responses.
+go-lb is a load balancer implemented with Go. It uses simple round robin to select backends to handle requests, and performs passive health checks to eliminate inactive backends. It uses http's Reverse Proxy to route requests and fetch responses.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
 Go language
 Built-in Go packages
 
+Note: Make sure your GOBIN and GOPATH environment variables are set up appropriately. For example:
+
 ```
-Give examples
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
 ```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+To install, first run
 ```
 go get github.com/divbhasin/go-lb
 ```
 
-Say what the step will be
-
+### Usage
 ```
-Give the example
+Usage of go-lb:
+  -backends string
+    	URLs to backends that need to be load balanced, separated by commas
+  -port int
+    	Port to serve load balancer on (default 3030)
 ```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Go](https://golang.org/) - The language used
+* [net/http](https://golang.org/pkg/net/http/) - The package used to proxy requests
 
-## Contributing
+## Author
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Divyam Bhasin**
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
@@ -89,6 +53,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* https://kasvith.github.io/posts/lets-create-a-simple-lb-go/
