@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -99,8 +100,43 @@ func GetAttemptsFromContext(r *http.Request) int {
 
 func (s *ServerPool) MarkBackendStatus(u *url.URL, status bool) {
 	for _, backend := range s.backends {
-		if backend.URL.Path == u.Path {
+		if backend.URL.Host == u.Host {
 			backend.SetAlive(false)
+		}
+	}
+}
+
+func isBackendAlive(u *url.URL) bool {
+	timeout := 2 * time.Second
+	conn, err := net.DialTimeout("tcp", u.Host, timeout)
+	if err != nil {
+		log.Println("Site unreachable, error: ", err)
+		return false
+	}
+	_ = conn.Close()
+	return true
+}
+
+func (s *ServerPool) HealthCheck() {
+	for _, b := range s.backends {
+		status := "up"
+		alive := isBackendAlive(b.URL)
+		b.SetAlive(alive)
+		if !alive {
+			status = "down"
+		}
+		log.Printf("%s [%s]\n", b.URL, status)
+	}
+}
+
+func doHealthCheck() {
+	t := time.NewTicker(time.Second * 20)
+	for {
+		select {
+		case <-t.C:
+			log.Println("Starting health check...")
+			s.HealthCheck()
+			log.Println("Health check completed")
 		}
 	}
 }
@@ -149,6 +185,8 @@ func main() {
 			lb(w, r.WithContext(ctx))
 		}
 	}
+
+	go doHealthCheck()
 
 	server := http.Server{
 		Addr: fmt.Sprintf(":%d", port),
