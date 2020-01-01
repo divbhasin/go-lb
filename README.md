@@ -30,10 +30,16 @@ go get github.com/divbhasin/go-lb
 ### Usage
 ```
 Usage of go-lb:
-  -backends string
-    	URLs to backends that need to be load balanced, separated by commas
-  -port int
-    	Port to serve load balancer on (default 3030)
+  -config string
+    	The name of the config file to use (default: config.yml)
+```
+
+A sample config file:
+```
+port: 3030
+backends:
+  - localhost:3031
+  - localhost:3031
 ```
 
 ## Built With
