@@ -1,6 +1,10 @@
 language: go
+install:
+  - go get gopkg.in/yaml.v2
 before_script:
   - go vet ./...
+script:
+  - make
 notifications:
   email:
     recipients:
