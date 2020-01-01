@@ -8,7 +8,7 @@ import (
 
 type ServerPool struct {
 	backends []*Backend
-	current uint64
+	current  uint64
 }
 
 func (s *ServerPool) NextIndex() int {

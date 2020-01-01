@@ -65,7 +65,7 @@ func main() {
 	var serverList string
 	var port int
 
-	flag.StringVar(&serverList, "backends", "", "URLs to backends that need to be load balanced" +
+	flag.StringVar(&serverList, "backends", "", "URLs to backends that need to be load balanced"+
 		", separated by commas")
 
 	flag.IntVar(&port, "port", 3030, "Port to serve load balancer on")
@@ -101,7 +101,7 @@ func main() {
 			s.MarkBackendStatus(serverUrl, false)
 			attempts := GetAttemptsFromContext(r)
 			log.Printf("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
-			ctx := context.WithValue(r.Context(), Attempts, attempts + 1)
+			ctx := context.WithValue(r.Context(), Attempts, attempts+1)
 			lb(w, r.WithContext(ctx))
 		}
 	}
@@ -109,12 +109,12 @@ func main() {
 	go doHealthCheck()
 
 	server := http.Server{
-		Addr: fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: http.HandlerFunc(lb),
 	}
 
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatalf("An error occured %e", err)
+		log.Fatalf("An error occurred %e", err)
 	}
 }
