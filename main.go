@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -16,6 +17,11 @@ const (
 	Attempts int = iota
 	Retry
 )
+
+type config struct {
+	Port int64 `yaml:"port"`
+	Backends []string `yaml:"backends"`
+}
 
 var s ServerPool
 
@@ -61,23 +67,30 @@ func doHealthCheck() {
 	}
 }
 
-func main() {
-	var serverList string
-	var port int
-
-	flag.StringVar(&serverList, "backends", "", "URLs to backends that need to be load balanced"+
-		", separated by commas")
-
-	flag.IntVar(&port, "port", 3030, "Port to serve load balancer on")
-	flag.Parse()
-
-	if len(serverList) == 0 {
-		log.Fatal("Please provide one or more backends to load manage")
-		return
+func (c *config) getConf(configFile string) {
+	yamlFile, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		log.Fatal("Could not read config file: ", err)
 	}
 
-	tokens := strings.Split(serverList, ",")
-	for _, tok := range tokens {
+	err = yaml.Unmarshal(yamlFile, c)
+	if err != nil {
+		log.Fatal("Could not parse yaml: ", err)
+	}
+}
+
+func main() {
+	var configFile string
+	var c config
+
+	flag.StringVar(&configFile, "config", "config.yml", "The name of the config file to use")
+	flag.Parse()
+
+	c.getConf(configFile)
+	serverList := c.Backends
+	port := c.Port
+
+	for _, tok := range serverList {
 		serverUrl, err := url.Parse(tok)
 		if err != nil {
 			log.Fatal("URL is malformed!")
@@ -115,6 +128,6 @@ func main() {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatalf("An error occurred %e", err)
+		log.Fatal("An error occurred: ", err)
 	}
 }
