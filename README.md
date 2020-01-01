@@ -2,7 +2,7 @@
 
 # go-lb: A basic load balancer implemented in Go
 
-go-lb is a load balancer implemented with Go. It uses simple round robin to select backends to handle requests, and performs passive health checks to eliminate inactive backends. It uses http's Reverse Proxy to route requests and fetch responses.
+go-lb is a load balancer implemented with Go. It uses simple round robin to select backends to handle requests, and performs passive health checks to eliminate inactive backends. It uses http's Reverse Proxy to route requests and fetch responses. Please note that this project is still a work-in-progress.
 
 ## Getting Started
 
