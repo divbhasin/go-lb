@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Backend : refers to a server
 type Backend struct {
 	URL          *url.URL
 	Alive        bool
@@ -16,6 +17,7 @@ type Backend struct {
 	ReverseProxy *httputil.ReverseProxy
 }
 
+// SetAlive : Setter for the alive property of Backend struct
 func (b *Backend) SetAlive(alive bool) {
 	b.mux.Lock()
 	defer b.mux.Unlock()
@@ -23,6 +25,7 @@ func (b *Backend) SetAlive(alive bool) {
 	b.Alive = alive
 }
 
+// IsAlive : Checks whether a Backend is still alive
 func (b *Backend) IsAlive() (alive bool) {
 	b.mux.RLock()
 	defer b.mux.RUnlock()
