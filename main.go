@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	Attempts int = iota
-	Retry
+	attempts int = iota
+	retry
 )
 
 type config struct {
@@ -41,15 +41,17 @@ func lb(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Service not available", http.StatusServiceUnavailable)
 }
 
+// GetRetryFromContext : takes a request context and deduces the number of retries
 func GetRetryFromContext(r *http.Request) int {
-	if retry, ok := r.Context().Value(Retry).(int); ok {
+	if retry, ok := r.Context().Value(retry).(int); ok {
 		return retry
 	}
 	return 0
 }
 
+// GetAttemptsFromContext : takes the number of attempts and deduces the number of attempts already made connecting
 func GetAttemptsFromContext(r *http.Request) int {
-	if retry, ok := r.Context().Value(Attempts).(int); ok {
+	if retry, ok := r.Context().Value(attempts).(int); ok {
 		return retry
 	}
 	return 0
@@ -91,30 +93,30 @@ func main() {
 	port := c.Port
 
 	for _, tok := range serverList {
-		serverUrl, err := url.Parse(tok)
+		serverURL, err := url.Parse(tok)
 		if err != nil {
 			log.Fatal("URL is malformed!")
 			return
 		}
 
-		proxy := httputil.NewSingleHostReverseProxy(serverUrl)
+		proxy := httputil.NewSingleHostReverseProxy(serverURL)
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-			log.Printf("[%s] %s\n", serverUrl, e.Error())
+			log.Printf("[%s] %s\n", serverURL, e.Error())
 			retries := GetRetryFromContext(r)
 
 			if retries < 3 {
 				select {
 				case <-time.After(10 * time.Millisecond):
-					ctx := context.WithValue(r.Context(), Retry, retries+1)
+					ctx := context.WithValue(r.Context(), retry, retries+1)
 					proxy.ServeHTTP(w, r.WithContext(ctx))
 				}
 				return
 			}
 
-			s.MarkBackendStatus(serverUrl, false)
+			s.MarkBackendStatus(serverURL, false)
 			attempts := GetAttemptsFromContext(r)
 			log.Printf("%s(%s) Attempting retry %d\n", r.RemoteAddr, r.URL.Path, attempts)
-			ctx := context.WithValue(r.Context(), Attempts, attempts+1)
+			ctx := context.WithValue(r.Context(), attempts, attempts+1)
 			lb(w, r.WithContext(ctx))
 		}
 	}
