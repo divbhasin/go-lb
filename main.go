@@ -19,7 +19,7 @@ const (
 )
 
 type config struct {
-	Port int64 `yaml:"port"`
+	Port     int64    `yaml:"port"`
 	Backends []string `yaml:"backends"`
 }
 
