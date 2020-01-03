@@ -81,6 +81,15 @@ func (c *config) getConf(configFile string) {
 	}
 }
 
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	var configFile string
 	var c config
@@ -91,8 +100,15 @@ func main() {
 	c.getConf(configFile)
 	serverList := c.Backends
 	port := c.Port
+	var seenToks []string
 
 	for _, tok := range serverList {
+		if stringInSlice(tok, seenToks) {
+			log.Fatal("This URL is repeated in config: ", tok)
+		} else {
+			seenToks = append(seenToks, tok)
+		}
+
 		serverURL, err := url.Parse(tok)
 		if err != nil {
 			log.Fatal("URL is malformed!")
@@ -119,6 +135,13 @@ func main() {
 			ctx := context.WithValue(r.Context(), attempts, attempts+1)
 			lb(w, r.WithContext(ctx))
 		}
+		backend := &Backend{
+			URL: serverURL,
+			Alive: true,
+			ReverseProxy: proxy,
+		}
+
+		s.backends = append(s.backends, backend)
 	}
 
 	go doHealthCheck()

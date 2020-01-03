@@ -36,7 +36,7 @@ func (s *ServerPool) GetNextPeer() *Backend {
 // MarkBackendStatus : Marks the status of a backend to be alive or not alive
 func (s *ServerPool) MarkBackendStatus(u *url.URL, status bool) {
 	for _, backend := range s.backends {
-		if backend.URL.Host == u.Host {
+		if backend.URL == u {
 			backend.SetAlive(false)
 		}
 	}
