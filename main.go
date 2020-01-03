@@ -136,8 +136,8 @@ func main() {
 			lb(w, r.WithContext(ctx))
 		}
 		backend := &Backend{
-			URL: serverURL,
-			Alive: true,
+			URL:          serverURL,
+			Alive:        true,
 			ReverseProxy: proxy,
 		}
 
